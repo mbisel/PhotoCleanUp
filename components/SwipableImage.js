@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
         borderColor: '#fa6464'
     },
     photo: {
-        height: '100%',
+        height: '99%',
         resizeMode: 'cover',
         borderRadius: 20,
         backgroundColor: 'gray'

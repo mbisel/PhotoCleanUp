@@ -1,10 +1,11 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { Text,View, StyleSheet } from 'react-native'
 import { FontAwesome5, FontAwesome } from '@expo/vector-icons'
 export default function TopBar() {
   return (
     <View style={styles.container}>
-      <FontAwesome5 name="soap" size={27} color="#F06795" />
+       
+      <Text style={styles.text}><FontAwesome5 name="soap" size={27} color="#50C7C7" /> Clean Up </Text>
      
     </View>
   )
@@ -13,7 +14,7 @@ export default function TopBar() {
 const styles = StyleSheet.create({
   container: {
     height: 60,
-    flexDirection: 'row',
+    //flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 15,
     backgroundColor: 'white',
@@ -26,4 +27,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5.46,
     elevation: 9,
   },
+  text:{
+      fontSize:20,
+      fontWeight: "700",
+  }
 })

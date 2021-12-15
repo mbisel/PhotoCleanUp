@@ -7,7 +7,7 @@ export default function BottomBar({ handleKeepPress, handleDeletePress }) {
     <View style={styles.container}>
       <View />
       <TouchableOpacity style={styles.button} onPress={handleDeletePress}>
-        <FontAwesome name="times" size={27} color="#F06795"></FontAwesome>
+        <FontAwesome name="trash" size={27} color="#F06795"></FontAwesome>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button}>
         <FontAwesome name="check" size={27} color="#64EDCC" onPress={handleKeepPress}></FontAwesome>

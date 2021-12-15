@@ -16,7 +16,6 @@ function Swipes({ photos, currentIndex, handleKeep, handleDelete, swipesRef }) {
             </RectButton>
         )
 
-
     }
     const renderRightActions = () => {
         return (
