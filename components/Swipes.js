@@ -42,7 +42,7 @@ function Swipes({ photos, currentIndex, handleKeep, handleDelete, swipesRef }) {
             }}
             onSwipeableRightOpen={() => {
                 setWillDelete(false)
-                handleDelete()
+                handleDelete(photos)
             }}
             onSwipeableLeftWillOpen={() => setWillKeep(true)}
             onSwipeableRightWillOpen={() => setWillDelete(true)}>

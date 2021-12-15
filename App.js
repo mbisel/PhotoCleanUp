@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Pressable, Image, View, Text, Button } from 'react-native';
+import { StyleSheet, Pressable, Image, View, Text, TouchableOpacity, } from 'react-native';
 import Constants from 'expo-constants';
 import TopBar from './components/TopBar';
 import SwipableImage from './components/SwipableImage';
@@ -11,7 +11,7 @@ import { FontAwesome } from '@expo/vector-icons'
 
 
 export default function App() {
-    const [photos, setPhotos] = useState([])
+    const [photos, setPhotos] = useState([ ])
     const [screenshots, setScreenshots] = useState([])
     const [deletedAlbum, setDeletedAlbum] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0)
@@ -21,25 +21,14 @@ export default function App() {
     const [nextPressed, setNextPressed] = useState(false)
     const [albumId, setAlbumId] = useState("")
     const swipesRef = useRef(null)
+   
     const _mediaLibraryAsync = async () => {
         let { status } = await MediaLibrary.requestPermissionsAsync()
         let media = await MediaLibrary.getAssetsAsync({
             mediaType: ['photo'],
-            first: 100,
+            first: 1000,
         })
         setPhotos(media.assets);
-        let ss = await MediaLibrary.getAssetsAsync({
-            mediaSubtype: ['screenshot'],
-            first: 100,
-        })
-        setScreenshots(ss.assets)
-
-        await MediaLibrary.createAlbumAsync("To Delete")
-        let albums = await MediaLibrary.getAlbumAsync("To Delete")
-        setAlbumId(albums.id)
-        console.log(photos[0].uri)
-
-
     };
 
 
@@ -50,13 +39,19 @@ export default function App() {
 
     useEffect(() => {
         _mediaLibraryAsync()
+
     }, [])
 
     function handleKeep() {
         nextPhoto()
     }
 
-    async function handleDelete() {
+    async function newDeletedAlbum(){
+        await MediaLibrary.createAlbumAsync("To Delete")
+        let albums = await MediaLibrary.getAlbumAsync("To Delete")
+        setAlbumId(albums.id)
+    }
+    async function handleDelete(photos) {
         nextPhoto()
         await MediaLibrary.addAssetsToAlbumAsync(photos[currentIndex], albumId)
         let deleted = await MediaLibrary.getAssetsAsync({
@@ -77,6 +72,8 @@ export default function App() {
     function handleAllPhotosPressed() {
         setAllPhotosPressed(true)
         setNothingPressed(false)
+        setCurrentIndex(0)
+        newDeletedAlbum()
     }
 
     function handleBackButtonPressedA() {
@@ -92,14 +89,19 @@ export default function App() {
         setNextPressed(false)
     }
     function handleScreenshotsPressed() {
+        loadScreenshots()
         setScreenshotsPressed(true)
         setNothingPressed(false)
+        setCurrentIndex(0)
+        newDeletedAlbum()
+
     }
     function handleNextPressed() {
         setNextPressed(true)
         setAllPhotosPressed(false)
+        setScreenshotsPressed(false)
     }
-    function goHome(){
+    function goHome() {
         setNextPressed(false)
         setNothingPressed(true)
     }
@@ -108,6 +110,18 @@ export default function App() {
         await MediaLibrary.deleteAlbumsAsync(albumId, true)
         setDeletedAlbum([])
     }
+    function loadScreenshots(){
+        let temp = [];
+         photos.map(
+            (p, i) =>
+            {if(photos[i].mediaSubtypes == "screenshot"){
+                temp.push(photos[i])
+            }}
+        )
+        setScreenshots(temp)
+    }
+
+
     return (
 
         <View style={styles.container}>
@@ -134,7 +148,7 @@ export default function App() {
                                         currentIndex={currentIndex}
                                         photos={photos}
                                         handleKeep={handleKeep}
-                                        handleDelete={handleDelete}
+                                        handleDelete={()=>handleDelete(photos)}
                                     ></Swipes>
                                 )
                         )}
@@ -150,17 +164,17 @@ export default function App() {
                         {deletedAlbum.length > 0 &&
                             deletedAlbum.map(
                                 (p, i) =>
-                                    <Image key={i} style={styles.imgItem} source={{ uri: deletedAlbum[i].uri }}></Image>
+                                   <Image key={i} style={styles.imgItem} source={{ uri: deletedAlbum[i].uri }}></Image>
                             )}
                         {deletedAlbum.length > 0 && (
-                           <Pressable style={styles.finalDelete} onPress={handleFinalDelete} ><Text>Delete {deletedAlbum.length} Photos</Text></Pressable>
+                            <Pressable style={styles.finalDelete} onPress={handleFinalDelete} ><Text>Delete {deletedAlbum.length} Photos</Text></Pressable>
 
                         )}
                         {deletedAlbum.length === 0 && (
-                           <Pressable style={styles.finalDelete} onPress={goHome} ><Text>Go Home</Text></Pressable>
+                            <Pressable style={styles.finalDelete} onPress={goHome} ><Text>Go Home</Text></Pressable>
 
                         )}
-                        
+
 
 
 
@@ -170,6 +184,8 @@ export default function App() {
             )}
             {screenshotsPressed && (
                 <View style={styles.swipes}>
+                    <FontAwesome style={styles.backArrow} name="arrow-left" size={27} color="gray" onPress={handleBackButtonPressedS} />
+
                     {screenshots.length > 1 &&
                         screenshots.map(
                             (p, i) =>
@@ -180,7 +196,7 @@ export default function App() {
                                         currentIndex={currentIndex}
                                         photos={screenshots}
                                         handleKeep={handleKeep}
-                                        handleDelete={handleDelete}
+                                        handleDelete={()=>handleDelete(screenshots)}
                                     ></Swipes>
                                 )
                         )}
@@ -189,6 +205,12 @@ export default function App() {
             )}
 
             {allPhotosPressed && (
+                <View>
+                    <Text style={styles.next} onPress={handleNextPressed}>Done<FontAwesome name="arrow-right" size={27} ></FontAwesome></Text>
+                    <BottomBar handleKeepPress={handleKeepPress} handleDeletePress={handleDeletePress} />
+                </View>
+            )}
+            {screenshotsPressed && (
                 <View>
                     <Text style={styles.next} onPress={handleNextPressed}>Done<FontAwesome name="arrow-right" size={27} ></FontAwesome></Text>
                     <BottomBar handleKeepPress={handleKeepPress} handleDeletePress={handleDeletePress} />
